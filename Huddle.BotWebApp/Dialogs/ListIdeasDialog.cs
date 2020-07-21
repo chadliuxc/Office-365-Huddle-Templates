@@ -26,7 +26,6 @@ namespace Huddle.BotWebApp.Dialogs
         public DateTime? From { get; set; }
     }
 
-    [Serializable]
     public class ListIdeasDialog : HuddleDialog
     {
         private static readonly string[] ideaStatusChoices = new[] { "All ideas", "New ideas", "In progress ideas", "Shareable ideas" };

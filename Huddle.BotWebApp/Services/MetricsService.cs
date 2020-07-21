@@ -22,14 +22,14 @@ namespace Huddle.BotWebApp.Services
             var issues = await site.Lists["Issues"].Items.Request()
                 .Select("Id")
                 .Filter($"fields/HuddleTeamId eq '{teamId}'")
-                .GetAsync();
+                .GetAllAsync();
 
             var fitler = string.Join(" or ", issues.Select(i => "fields/HuddleIssueLookupId eq " + i.Id));
 
             var metrics = await site.Lists["Metrics"].Items.Request()
                 .Expand("fields($select=Title)")
                 .Filter(fitler)
-                .GetAsync();
+                .GetAllAsync();
 
             return metrics.Select(i => new Metric
             {

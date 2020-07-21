@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 
 namespace Huddle.BotWebApp.Services
 {
-
     public static class GraphExtension
     {
         public static async Task<User[]> GetAllAsync(this IGroupMembersCollectionWithReferencesRequest request)
@@ -50,7 +49,11 @@ namespace Huddle.BotWebApp.Services
             return await GetAllAsync(collectionPage);
         }
 
-
+        public static async Task<ListItem[]> GetAllAsync(this IListItemsCollectionRequest request)
+        {
+            var collectionPage = await request.GetAsync();
+            return await GetAllAsync(collectionPage);
+        }
 
         private static async Task<TItem[]> GetAllAsync<TItem>(ICollectionPage<TItem> collectionPage)
         {

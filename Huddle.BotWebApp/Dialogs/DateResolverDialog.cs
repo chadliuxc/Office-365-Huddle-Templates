@@ -9,6 +9,7 @@ using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Recognizers.Text.DataTypes.TimexExpression;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Constants = Microsoft.Recognizers.Text.DataTypes.TimexExpression.Constants;
@@ -17,7 +18,7 @@ namespace Huddle.BotWebApp.Dialogs
 {
     public class DateResolverDialog : HuddleDialog
     {
-        private const string PromptMsgText = "What date will you start to implement this?";  //<br /> (Click one of the dates below, or input one with format mm/dd/yyyy)
+        private const string PromptMsgText = "Almost done. What date will you start to implement this? <br />(Click one of the dates below, or input one with format mm/dd/yyyy)";
         private const string RepromptMsgText = "I'm sorry, please enter a full date including Day Month and Year.";
 
         public DateResolverDialog(string id, IConfiguration configuration, UserState userState)
@@ -37,19 +38,21 @@ namespace Huddle.BotWebApp.Dialogs
         private async Task<DialogTurnResult> InitialStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             var timex = (string)stepContext.Options;
-
-            var promptMessage = MessageFactory.Text(PromptMsgText, PromptMsgText, InputHints.ExpectingInput);
-            var repromptMessage = MessageFactory.Text(RepromptMsgText, RepromptMsgText, InputHints.ExpectingInput);
-
             if (timex == null)
             {
+                var dates = new[] { "Today", "Tomorrow" };
+                var heroCard = new HeroCard
+                {
+                    Text = PromptMsgText,
+                    Buttons = dates.Select(i => new CardAction(ActionTypes.MessageBack, i, null, i, i, i, null)).ToList()
+                };
+                var promptOptions = new PromptOptions
+                {
+                    Prompt = (Activity)MessageFactory.Attachment(heroCard.ToAttachment()),
+                    RetryPrompt = MessageFactory.Text(RepromptMsgText, RepromptMsgText, InputHints.ExpectingInput)
+                };
                 // We were not given any date at all so prompt the user.
-                return await stepContext.PromptAsync(nameof(DateTimePrompt),
-                    new PromptOptions
-                    {
-                        Prompt = promptMessage,
-                        RetryPrompt = repromptMessage,
-                    }, cancellationToken);
+                return await stepContext.PromptAsync(nameof(DateTimePrompt), promptOptions, cancellationToken);
             }
 
             // We have a Date we just need to check it is unambiguous.
@@ -57,13 +60,12 @@ namespace Huddle.BotWebApp.Dialogs
             if (!timexProperty.Types.Contains(Constants.TimexTypes.Definite))
             {
                 // This is essentially a "reprompt" of the data we were given up front.
-                return await stepContext.PromptAsync(nameof(DateTimePrompt),
-                    new PromptOptions
-                    {
-                        Prompt = repromptMessage,
-                    }, cancellationToken);
+                var promptOptions = new PromptOptions
+                {
+                    Prompt = MessageFactory.Text(RepromptMsgText, RepromptMsgText, InputHints.ExpectingInput),
+                };
+                return await stepContext.PromptAsync(nameof(DateTimePrompt), promptOptions, cancellationToken);
             }
-
             return await stepContext.NextAsync(new List<DateTimeResolution> { new DateTimeResolution { Timex = timex } }, cancellationToken);
         }
 
@@ -87,7 +89,6 @@ namespace Huddle.BotWebApp.Dialogs
 
                 return Task.FromResult(isDefinite);
             }
-
             return Task.FromResult(false);
         }
     }
