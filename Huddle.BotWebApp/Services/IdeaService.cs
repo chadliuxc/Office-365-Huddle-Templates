@@ -4,41 +4,50 @@
  */
 
 using Huddle.BotWebApp.Models;
-using Huddle.Common;
 using Microsoft.Graph;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Huddle.BotWebApp.Services
 {
-    public class IdeaService
+    public class IdeaService : GraphService
     {
-        private GraphServiceClient graphServiceClient;
-        private PlannerService plannerService;
-        private TeamService teamService;
+        private PlannerService _plannerService;
+        private TeamsService _teamService;
 
-        public IdeaService(GraphServiceClient graphServiceClient)
+        public IdeaService(string token) : base(token)
         {
-            this.graphServiceClient = graphServiceClient;
-            this.plannerService = new PlannerService(graphServiceClient);
-            this.teamService = new TeamService(graphServiceClient);
+            this._plannerService = new PlannerService(token);
+            this._teamService = new TeamsService(token);
         }
 
-        public async Task<Idea[]> GetAsync(Team team, string planId, string status, DateTime? from)
+        public async Task<Idea[]> GetAsync(string teamId, string planId, string status, DateTime? from)
         {
             var bucketName = GetBucketName(status);
-            var buckets = await plannerService.GetBucketsAsync(planId);
+            var buckets = await _plannerService.GetBucketsAsync(planId);
             var bucketDict = buckets.ToDictionary(b => b.Id);
             var bucket = buckets.FirstOrDefault(i => i.Name == bucketName);
 
-            var members = await teamService.GetTeamMembersAsync(team.Id);
-            var membersDict = members.ToDictionary(m => m.Id);
+            //var members = await _teamService.GetTeamMembersAsync(teamId);
+            //var membersDict = members.ToDictionary(m => m.Id);
 
-            var tasks = await graphServiceClient.Planner.Plans[planId].Tasks.Request().GetAllAsync();
+
+
+            var tasks = await _graphServiceClient.Planner.Plans[planId].Tasks.Request().GetAllAsync();
             if (bucket != null)
                 tasks = tasks.Where(i => i.BucketId == bucket.Id).ToArray();
+
+            var userDict = new Dictionary<string, string>();
+            var userIds = tasks.SelectMany(i => i.Assignments.Select(j => j.Key)).Distinct().ToArray();
+            if (userIds.Length > 0)
+            {
+                var filter = string.Join(" or ", userIds.Select(i => $"id eq '{i}'"));
+                var users = await _graphServiceClient.Users.Request().Filter(filter).Select("id, displayName").GetAllAsync();
+                userDict = users.ToDictionary(i => i.Id, i => i.DisplayName);
+            }
 
             return tasks.Select(i => new Idea
             {
@@ -47,14 +56,14 @@ namespace Huddle.BotWebApp.Services
                 Title = i.Title,
                 StartDate = i.StartDateTime,
                 Owners = i.Assignments
-                    .Select(a => membersDict[a.Key])
+                    .Select(a => userDict[a.Key])
                     .ToArray()
             }).ToArray();
         }
 
         public async Task<PlannerTask> CreateAsync(string planId, string title, DateTimeOffset? startDate, string ownerId, string description)
         {
-            var newIdeaBucket = await plannerService.GetNewIdeaBucketAsync(planId);
+            var newIdeaBucket = await _plannerService.GetNewIdeaBucketAsync(planId);
             if (newIdeaBucket == null) throw new ApplicationException("Could not find New Idea bucket.");
 
             var plannerTask = new PlannerTask
@@ -66,10 +75,10 @@ namespace Huddle.BotWebApp.Services
                 Assignments = new PlannerAssignments()
             };
             plannerTask.Assignments.AddAssignee(ownerId);
-            plannerTask = await graphServiceClient.Planner.Tasks.Request().AddAsync(plannerTask);
+            plannerTask = await _graphServiceClient.Planner.Tasks.Request().AddAsync(plannerTask);
 
             var planerTaskDetails = new PlannerTaskDetails { Description = description };
-            var plannerTaskRequestBuilder = graphServiceClient.Planner.Tasks[plannerTask.Id];
+            var plannerTaskRequestBuilder = _graphServiceClient.Planner.Tasks[plannerTask.Id];
 
             PlannerTaskDetails details = null;
 
@@ -100,14 +109,14 @@ namespace Huddle.BotWebApp.Services
 
         public async Task GetDetailsAsync(Idea idea)
         {
-            var details = await graphServiceClient.Planner.Tasks[idea.Id].Details.Request().GetAsync();
+            var details = await _graphServiceClient.Planner.Tasks[idea.Id].Details.Request().GetAsync();
             if (details != null)
                 idea.Description = details.Description;
         }
 
-        public string GetIdeaUrl(string groupId, string planId, string taskId)
+        public string GetIdeaUrl(string tenantId, string groupId, string planId, string taskId)
         {
-            return $"https://tasks.office.com/{Constants.AADTenantId}/EN-US/Home/Planner#/plantaskboard?groupId={groupId}&planId={planId}&taskId={taskId}";
+            return $"https://tasks.office.com/{tenantId}/EN-US/Home/Planner#/plantaskboard?groupId={groupId}&planId={planId}&taskId={taskId}";
         }
 
         private string GetNextStepsFromDetails(PlannerTaskDetails details)
@@ -128,17 +137,16 @@ namespace Huddle.BotWebApp.Services
 
         private string GetBucketName(string status)
         {
-            if (status.IsNullOrEmpty()) return null;
+            if (string.IsNullOrEmpty(status)) return null;
 
-            switch (status.ToLower())
-            {
-                case "new":
-                    return Constants.IdeasPlan.Buckets.NewIdea;
-                case "in progress":
-                    return Constants.IdeasPlan.Buckets.InProgress;
-                default:
-                    return status;
-            }
+            var statusLower = status.ToLower();
+            if (statusLower.Contains("new"))
+                return Constants.IdeasPlan.Buckets.NewIdea;
+            if (status.Contains("in progress"))
+                return Constants.IdeasPlan.Buckets.InProgress;
+            if (status.Contains("shareable"))
+                return Constants.IdeasPlan.Buckets.Shareable;
+            return null;
         }
     }
 }
