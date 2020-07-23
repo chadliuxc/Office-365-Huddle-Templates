@@ -3,7 +3,6 @@
  *   * See LICENSE in the project root for license information.  
  */
 
-using Huddle.BotWebApp.Models;
 using Microsoft.Graph;
 using System.Linq;
 using System.Threading.Tasks;
@@ -34,11 +33,11 @@ namespace Huddle.BotWebApp.Services
         public async Task<PlannerBucket> GetNewIdeaBucketAsync(string planId)
         {
             var buckets = await _graphServiceClient.Planner.Plans[planId].Buckets.Request()
-                .Filter($"name eq '{Constants.IdeasPlan.Buckets.NewIdea}'")
+                .Filter($"name eq '{IdeasPlan.Buckets.NewIdea}'")
                 .GetAsync();
              
             return buckets
-                .Where(i => i.Name == Constants.IdeasPlan.Buckets.NewIdea)
+                .Where(i => i.Name == IdeasPlan.Buckets.NewIdea)
                 .FirstOrDefault();
         }
     }

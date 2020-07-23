@@ -121,7 +121,7 @@ namespace Huddle.BotWebApp.Dialogs
                 : "No idea was found.";
             await stepContext.Context.SendActivityAsync(summary);
 
-            foreach (var bucket in Services.Constants.IdeasPlan.Buckets.All)
+            foreach (var bucket in IdeasPlan.Buckets.All)
             {
                 var bucketIdeas = ideas.Where(i => i.Bucket == bucket).ToArray();
                 if (!bucketIdeas.Any()) continue;

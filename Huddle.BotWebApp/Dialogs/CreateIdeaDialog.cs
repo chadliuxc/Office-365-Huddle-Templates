@@ -244,7 +244,7 @@ namespace Huddle.BotWebApp.Dialogs
 
             if (plan == null)
             {
-                var message = $"Could not find plan named '{team.DisplayName}'";
+                var message = $"Failed to create the idea: could not find plan named '{team.DisplayName}'";
                 await stepContext.Context.SendActivityAsync(message);
             }
             else
@@ -252,13 +252,21 @@ namespace Huddle.BotWebApp.Dialogs
                 var description = $"Next Steps\r\n{createIdeaOptions.NextSteps}" +
                     $"\r\n\r\nAligned to Metric\r\n{createIdeaOptions.Metric}";
                 var ideaService = new IdeaService(tokenResponse.Token);
-                await ideaService.CreateAsync(plan.Id,
-                     createIdeaOptions.Title,
-                     new DateTimeOffset(createIdeaOptions.StartDate.Value, TimeSpan.Zero),
-                     createIdeaOptions.Owner,
-                     description
-                );
-                await stepContext.Context.SendActivityAsync("Idea created.");
+                try
+                {
+                    await ideaService.CreateAsync(plan.Id,
+                         createIdeaOptions.Title,
+                         new DateTimeOffset(createIdeaOptions.StartDate.Value, TimeSpan.Zero),
+                         createIdeaOptions.Owner,
+                         description
+                    );
+                    await stepContext.Context.SendActivityAsync("Idea created.");
+                }
+                catch (Exception ex)
+                {
+                    var message = $"Failed to create the idea: {ex.Message}";
+                    await stepContext.Context.SendActivityAsync(message);
+                }
             }
             return await stepContext.EndDialogAsync(null, cancellationToken);
         }

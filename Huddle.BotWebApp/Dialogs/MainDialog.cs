@@ -8,26 +8,20 @@ using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Huddle.BotWebApp.Dialogs
 {
-
     public class MainDialog : HuddleDialog
     {
         private readonly IRecognizer _luisRecognizer;
-        protected readonly ILogger Logger;
 
-
-        // Dependency injection uses this constructor to instantiate MainDialog
-        public MainDialog(IConfiguration configuration, IRecognizer luisRecognizer, UserState userState, ILogger<MainDialog> logger)
+        public MainDialog(IConfiguration configuration, IRecognizer luisRecognizer, UserState userState)
             : base(nameof(MainDialog), configuration, userState)
         {
             _luisRecognizer = luisRecognizer;
-            Logger = logger;
 
             AddDialog(new TextPrompt(nameof(TextPrompt)));
             AddDialog(new ChoicePrompt(nameof(ChoicePrompt)));
@@ -41,7 +35,6 @@ namespace Huddle.BotWebApp.Dialogs
                 FinalStepAsync,
             }));
 
-            // The initial child Dialog to run.
             InitialDialogId = nameof(WaterfallDialog);
         }
 
@@ -64,7 +57,6 @@ namespace Huddle.BotWebApp.Dialogs
 
         private async Task<DialogTurnResult> ActStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            // Call LUIS and gather any potential booking details. (Note the TurnContext has the response to the prompt.)
             var luisResult = await _luisRecognizer.RecognizeAsync<IdeasModel>(stepContext.Context, cancellationToken);
             switch (luisResult.TopIntent().intent)
             {

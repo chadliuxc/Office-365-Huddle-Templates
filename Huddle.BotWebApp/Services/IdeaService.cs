@@ -16,12 +16,10 @@ namespace Huddle.BotWebApp.Services
     public class IdeaService : GraphService
     {
         private PlannerService _plannerService;
-        private TeamsService _teamService;
 
         public IdeaService(string token) : base(token)
         {
             this._plannerService = new PlannerService(token);
-            this._teamService = new TeamsService(token);
         }
 
         public async Task<Idea[]> GetAsync(string teamId, string planId, string status, DateTime? from)
@@ -30,11 +28,6 @@ namespace Huddle.BotWebApp.Services
             var buckets = await _plannerService.GetBucketsAsync(planId);
             var bucketDict = buckets.ToDictionary(b => b.Id);
             var bucket = buckets.FirstOrDefault(i => i.Name == bucketName);
-
-            //var members = await _teamService.GetTeamMembersAsync(teamId);
-            //var membersDict = members.ToDictionary(m => m.Id);
-
-
 
             var tasks = await _graphServiceClient.Planner.Plans[planId].Tasks.Request().GetAllAsync();
             if (bucket != null)
@@ -82,23 +75,23 @@ namespace Huddle.BotWebApp.Services
 
             PlannerTaskDetails details = null;
 
-            int count = 1;
-            while (true)
-            {
-                try
-                {
-                    details = await plannerTaskRequestBuilder.Details.Request().GetAsync();
-                    break;
-                }
-                catch (Exception ex)
-                {
-                    if (count < 6)
-                        await Task.Delay(1000);
-                    else
-                        throw new Exception("Task created. But failed to create its details. ", ex);
-                }
-                count++;
-            }
+            //int count = 1;
+            //while (true)
+            //{
+            //    try
+            //    {
+            //        details = await plannerTaskRequestBuilder.Details.Request().GetAsync();
+            //        break;
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        if (count < 6)
+            //            await Task.Delay(1000);
+            //        else
+            //            throw new Exception("Task created. But failed to create its details. ", ex);
+            //    }
+            //    count++;
+            //}
 
             details = await plannerTaskRequestBuilder.Details
                 .Request(new[] { new HeaderOption("If-Match", details.GetEtag()) })
@@ -141,11 +134,11 @@ namespace Huddle.BotWebApp.Services
 
             var statusLower = status.ToLower();
             if (statusLower.Contains("new"))
-                return Constants.IdeasPlan.Buckets.NewIdea;
+                return IdeasPlan.Buckets.NewIdea;
             if (status.Contains("in progress"))
-                return Constants.IdeasPlan.Buckets.InProgress;
+                return IdeasPlan.Buckets.InProgress;
             if (status.Contains("shareable"))
-                return Constants.IdeasPlan.Buckets.Shareable;
+                return IdeasPlan.Buckets.Shareable;
             return null;
         }
     }
