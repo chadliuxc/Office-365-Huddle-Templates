@@ -75,23 +75,23 @@ namespace Huddle.BotWebApp.Services
 
             PlannerTaskDetails details = null;
 
-            //int count = 1;
-            //while (true)
-            //{
-            //    try
-            //    {
-            //        details = await plannerTaskRequestBuilder.Details.Request().GetAsync();
-            //        break;
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        if (count < 6)
-            //            await Task.Delay(1000);
-            //        else
-            //            throw new Exception("Task created. But failed to create its details. ", ex);
-            //    }
-            //    count++;
-            //}
+            int count = 1;
+            while (true)
+            {
+                try
+                {
+                    details = await plannerTaskRequestBuilder.Details.Request().GetAsync();
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    if (count < 6)
+                        await Task.Delay(1000);
+                    else
+                        throw new Exception("Task created. But failed to create its details. ", ex);
+                }
+                count++;
+            }
 
             details = await plannerTaskRequestBuilder.Details
                 .Request(new[] { new HeaderOption("If-Match", details.GetEtag()) })
