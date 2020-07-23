@@ -39,7 +39,6 @@ Improving quality of care depends on many things – process, patient care, and 
 
 * [Create a site collection](#create-a-site-collection)
 * [Provision Lists](#provision-lists)
-* [Add preset data](#add-preset-data)
 
 [Create App Registrations in AAD](#create-app-registrations-in-aad)
 
@@ -297,13 +296,13 @@ For each team you created, please active the default planer and create 4 buckets
 
    - Sign into your GitHub account where you forked this repository.
 
-   - Click **Generate Token**.
+   - Click **Generate new token**.
 
    - Enter a value in the **Token description** text box.
 
    - Select the following s (your selections should match the screenshot below):
 
-     - repo (all) -> repo:status, repo_deployment, public_repo
+     - repo (all) -> repo:status, repo_deployment, public_repo, repo:invite, security_events
      - admin:repo_hook -> read:repo_hook
 
      ![](Images/github-new-personal-access-token.png)
@@ -336,7 +335,7 @@ For each team you created, please active the default planer and create 4 buckets
 
 2. Click the Deploy to Azure Button:
 
-   [![Deploy to Azure](https://camo.githubusercontent.com/9285dd3998997a0835869065bb15e5d500475034/687474703a2f2f617a7572656465706c6f792e6e65742f6465706c6f79627574746f6e2e706e67)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FOfficeDev%2FOffice-365-Huddle-Templates%2Fmaster%2Fazuredeploy.json)
+   [![Deploy to Azure](https://camo.githubusercontent.com/9285dd3998997a0835869065bb15e5d500475034/687474703a2f2f617a7572656465706c6f792e6e65742f6465706c6f79627574746f6e2e706e67)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fchadliuxc%2FOffice-365-Huddle-Templates%2Fmaster%2Fazuredeploy.json)
 
 3. Fill in the values on the deployment page:
 
@@ -436,41 +435,6 @@ Follow the similar steps in the previous chapter to add the reply URL and admin 
    * Upload `/Files/HuddleBotIcon.png` as the **Icon**. 
 
    * Click **Save**.
-
-
-3. Add Microsoft Teams Channel:
-
-   * Click **Channels**.
-
-     ![](Images/bot-14.png)
-
-   * Click the **Microsoft Teams Icon** under **Add a channel** section.
-
-     ![](Images/bot-15.png)
-
-     Click **Done**.
-
-   * Right-click the new added **Microsoft Teams** channel.
-
-     ![](Images/bot-16.png)
-
-   * Click **Copy link address**, and paste the URL to someplace. It will be used to add the Bot to Microsoft Teams later.
-
-4. Verify the Bot:
-
-   - Click **Test in Web Chat**:
-
-     ![](Images/bot-19.png)
-
-   - Input `list ideas`, then send.
-
-     ![](Images/bot-20.png)
-
-   - If you get responses like above, the Bot is deployed successfully.
-
-     >Note: If the message could not be sent, please click **retry **for a few times**.**
-     >
-     >![](Images/bot-21.png)
 
 ### Authorize Planner API Connection
 
