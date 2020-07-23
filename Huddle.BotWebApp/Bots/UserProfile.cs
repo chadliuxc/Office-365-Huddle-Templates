@@ -3,14 +3,12 @@
  *   * See LICENSE in the project root for license information.  
  */
 
-using System;
+using Huddle.BotWebApp.Models;
 
-namespace Huddle.WebJob.Models
+namespace Huddle.BotWebApp.Bots
 {
-    public class TeamMember
+    public class UserProfile
     {
-        public string Id { get; set; }
-
-        public string DisplayName { get; set; }
+        public Team SelectedTeam { get; set; }
     }
 }
