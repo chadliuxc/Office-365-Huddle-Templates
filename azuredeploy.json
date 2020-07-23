@@ -83,7 +83,8 @@
     "botWebAppName": "[concat(variables('nameLowecase'), '-bot-', variables('suffix'))]",
     "metricAppName": "[concat(variables('nameLowecase'), '-metric-', variables('suffix'))]",
     "microsoftGraphConnectorName": "[concat('microsoft-graph-connector-', variables('suffix'))]",
-    "botMessagingEndPoint":"[concat('https://', variables('botWebAppName'), '.azurewebsites.net/api/messages')]"
+    "botMessagingEndPoint": "[concat('https://', variables('botWebAppName'), '.azurewebsites.net/api/messages')]",
+    "botRegisterConnectionName": "graphConnection"
   },
   "resources": [
     {
@@ -428,7 +429,9 @@
             "/v1.0/planner/tasks/{id}": {
               "delete": {
                 "responses": {
-                  "204": { "description": "No Content" }
+                  "204": {
+                    "description": "No Content"
+                  }
                 },
                 "summary": "Delete a Task",
                 "description": "Delete a Task by ID",
@@ -470,21 +473,69 @@
       }
     },
     {
-        "apiVersion": "2017-12-01",
-        "type": "Microsoft.BotService/botServices",
+      "apiVersion": "2018-07-12",
+      "type": "Microsoft.BotService/botServices",
+      "name": "[variables('botId')]",
+      "location": "global",
+      "kind": "bot",
+      "sku": {
+        "name": "S1"
+      },
+      "properties": {
         "name": "[variables('botId')]",
-        "location": "global",
-        "kind": "bot",
-        "sku": {
-            "name": "S1"
+        "displayName": "[parameters('botName')]",
+        "endpoint": "[variables('botMessagingEndPoint')]",
+        "msaAppId": "[parameters('microsoftAppId')]",
+        "configuredChannels": [
+          "webchat",
+          "msteams"
+        ],
+        "enabledChannels": [
+          "webchat",
+          "directline",
+          "msteams"
+        ]
+      },
+      "resources": [
+        {
+          "name": "[concat(variables('botId'), '/', 'MsTeamsChannel')]",
+          "type": "Microsoft.BotService/botServices/channels",
+          "apiVersion": "2018-07-12",
+          "location": "global",
+          "properties": {
+            "properties": {
+              "enableCalling": false,
+              "incomingCallRoute": "graphPma",
+              "isEnabled": true
+            },
+            "channelName": "MsTeamsChannel"
+          },
+          "dependsOn": [
+            "[resourceId('Microsoft.BotService/botServices', variables('botId'))]"
+          ]
         },
-        "properties": {
-            "name": "[variables('botId')]",
-            "displayName": "[parameters('botName')]",
-            "endpoint": "[variables('botMessagingEndPoint')]",
-            "msaAppId": "[parameters('microsoftAppId')]"
-        },
-        "dependsOn": []
+        {
+          "name": "[concat(variables('botId'), '/', variables('botRegisterConnectionName'))]",
+          "type": "Microsoft.BotService/botServices/Connections",
+          "location": "global",
+          "apiVersion": "2018-07-12",
+          "properties": {
+            "clientId": "[parameters('microsoftAppId')]",
+            "clientSecret": "[parameters('microsoftAppPassword')]",
+            "scopes": "openid profile User.ReadBasic.All Team.ReadBasic.All Sites.Read.All Group.ReadWrite.All",
+            "serviceProviderId": "30dd229c-58e3-4a48-bdfd-91ec48eb906c",
+            "parameters": [
+              {
+                "key": "tenantId",
+                "value": "common"
+              }
+            ]
+          },
+          "dependsOn": [
+            "[resourceId('Microsoft.BotService/botServices', variables('botId'))]"
+          ]
+        }
+      ]
     },
     {
       "type": "Microsoft.Web/connections",
