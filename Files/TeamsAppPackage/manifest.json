@@ -38,6 +38,6 @@
   ],
   "validDomains": [
     "<MetricWebAppDomain>",
-    "*.<MetricWebAppDomain>"
+    "token.botframework.com"
   ]
 }
