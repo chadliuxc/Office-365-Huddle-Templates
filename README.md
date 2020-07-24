@@ -169,7 +169,7 @@ For each team you created, please active the default planer and create 4 buckets
 
    Click **Planner**.
 
-   Find the planner which has the same name as the team, then click it.
+   Click **New plan** and then click **Add to an existing Office 365 Group**. Create a plan with the same name in the previously created group.
 
    ![](Images/ms-planner-02.png)
 
