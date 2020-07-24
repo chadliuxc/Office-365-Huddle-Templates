@@ -11,13 +11,17 @@ namespace Huddle.BotWebApp.Services
 {
     public class MetricsService : GraphService
     {
-        public MetricsService(string token) :
-            base(token)
-        { }
+        private string baseSPSiteUrl;
 
-        public async Task<Metric[]> GetActiveMetricsAsync(string teamId) //Metric[]
+        public MetricsService(string token, string baseSPSiteUrl) :
+            base(token)
         {
-            var site = this._graphServiceClient.Sites.Root.SiteWithPath("/sites/huddledevchad");
+            this.baseSPSiteUrl = baseSPSiteUrl;
+        }
+
+        public async Task<Metric[]> GetActiveMetricsAsync(string teamId)
+        {
+            var site = this._graphServiceClient.Sites.Root.SiteWithPath(baseSPSiteUrl);
 
             var issues = await site.Lists["Issues"].Items.Request()
                 .Select("Id")

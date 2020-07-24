@@ -126,7 +126,7 @@ namespace Huddle.BotWebApp.Dialogs
             }
 
             var userProfile = await UserProfileAccessor.GetAsync(stepContext.Context);
-            var service = new MetricsService(tokenResponse.Token);
+            var service = new MetricsService(tokenResponse.Token, Configuration["BaseSPSiteUrl"]);
             var metrics = (await service.GetActiveMetricsAsync(userProfile.SelectedTeam.Id)).ToList();
             metrics.Add(new Metric { Id = 0, Name = "Other" });
             var promptOptions = new PromptOptions

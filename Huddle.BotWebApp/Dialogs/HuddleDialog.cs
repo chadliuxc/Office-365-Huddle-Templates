@@ -18,6 +18,7 @@ namespace Huddle.BotWebApp.Dialogs
     {
         private const string CancelMsgText = "Cancelled.";
 
+        protected IConfiguration Configuration;
         protected readonly string ConnectionName;
         protected readonly UserState UserState;
         protected readonly IStatePropertyAccessor<UserProfile> UserProfileAccessor;
@@ -25,6 +26,7 @@ namespace Huddle.BotWebApp.Dialogs
         public HuddleDialog(string id, IConfiguration configuration, UserState userState)
             : base(id)
         {
+            Configuration = configuration;
             ConnectionName = configuration["ConnectionName"];
             UserState = userState;
             UserProfileAccessor = userState.CreateProperty<UserProfile>("UserProfile");
