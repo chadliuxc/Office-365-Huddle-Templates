@@ -532,8 +532,8 @@
       "location": "global",
       "apiVersion": "2018-07-12",
       "properties": {
-        "clientId": "[parameters('microsoftAppId')]",
-        "clientSecret": "[parameters('microsoftAppPassword')]",
+        "clientId": "[parameters('botClientId')]",
+        "clientSecret": "[parameters('botClientSecret')]",
         "scopes": "openid profile User.ReadBasic.All Team.ReadBasic.All Sites.Read.All Group.ReadWrite.All",
         "serviceProviderId": "30dd229c-58e3-4a48-bdfd-91ec48eb906c",
         "parameters": [
