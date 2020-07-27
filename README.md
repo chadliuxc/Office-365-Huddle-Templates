@@ -59,10 +59,10 @@ Improving quality of care depends on many things – process, patient care, and 
 
 [Configure Teams App](#configure-teams-app)
 
-* [Start Conversation with The Bot](#start-conversation-with-the-bot)
 * [Create Teams App Package and Side-load It](#create-teams-app-package-and-side-load-it)
 * [Add Metric Input Tab](#add-metric-input-tab)
 * [Add Idea Board Tab](#add-idea-board-tab)
+* [Start Conversation with The Bot](#start-conversation-with-the-bot)
 
 ## Foreword
 
@@ -440,24 +440,6 @@ Follow the similar steps in the previous chapter to authorize the **microsoft-gr
 
 ## Configure Teams App
 
-### Start Conversation with The Bot
-
-Follow the step below to start 1:1 conversation with the Bot in Microsoft Teams
-
-1. Find the URL of Microsoft Teams Channel of the Bot, 
-
-   ![](Images/bot-16.png)
-
-   Then open it in your browser:
-
-   ![](Images/bot-22.png)
-
-2. Click **Open Microsoft Teams**.
-
-Another way to start 1:1 talk is using the **MicrosoftAppId** of the Bot:
-
-![](Images/bot-23.png)
-
 ### Create Teams App Package and Side-load It
 
 1. Open `/Files/TeamsAppPackage/manifest.json` with a text editor.
@@ -538,6 +520,24 @@ Another way to start 1:1 talk is using the **MicrosoftAppId** of the Bot:
    Input: IdeaBoard
 
 7. Click **Save**. 
+
+### Start Conversation with The Bot
+
+Follow the step below to start 1:1 conversation with the Bot in Microsoft Teams
+
+1. Find the URL of Microsoft Teams Channel of the Bot, 
+
+   ![](Images/bot-16.png)
+
+   Then open it in your browser:
+
+   ![](Images/bot-22.png)
+
+2. Click **Open Microsoft Teams**.
+
+Another way to start 1:1 talk is using the **MicrosoftAppId** of the Bot:
+
+![](Images/bot-23.png)
 
 
 

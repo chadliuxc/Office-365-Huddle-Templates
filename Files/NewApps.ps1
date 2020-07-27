@@ -52,7 +52,7 @@ $botWebAppResourceAccess = @(
         @{Id="b340eb25-3456-403f-be2f-af7a0d370277";Type="Scope"}
     )}
 );
-$botWebRedirectUrl = "https://huddle-bot-$ResourceGroupSuffix.azurewebsites.net/"
+$botWebRedirectUrl = "https://token.botframework.com/.auth/web/redirect"
 $botWebApp = New-MgApplication -DisplayName $botWebAppName -RequiredResourceAccess $botWebAppResourceAccess -SignInAudience "AzureADandPersonalMicrosoftAccount" -WebRedirectUris $botWebRedirectUrl -ImplicitGrantSettingEnableIdTokenIssuance;
 #Generate ClientId and ClientKey
 $botWebAppPassword = Add-MgApplicationPassword -ApplicationId $botWebApp.Id -BodyParameter $PasswordCredential
