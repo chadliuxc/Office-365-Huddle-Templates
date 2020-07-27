@@ -359,7 +359,7 @@ For each team you created, please active the default planer and create 4 buckets
 
    * **Resource group**: select to created resource group in previous step. 
    * **Bot Name**: the name of the bot, will be used as Display Name of Bot Registration.
-   * **Global Team**: the name of the global team.
+   * **Global Team**: the name of the global team that is one of the Teams created earlier. A webjob will move shared tasks in other team planners to the shared bucket of Global Team
    * **Source Code Repository**:  use the URL of the repository you just created -`https://github.com/<YourAccount>/Office-365-Huddle-Templates`
    * **Source Code Branch**: master
    * **Source code Manual Integration**: false
@@ -389,7 +389,7 @@ Please **Redeploy** with the same parameters and to the same resource group.
 
 ### Customize and Configure the Bot
 
-1. Navigate to the Bot Channels Registration you created.
+1. On Azure Portal, find the Resource Group you just created. Navigate to the Bot Channels Registration you created.
 
    ![](Images/bot-27.png)
 
@@ -405,7 +405,7 @@ Please **Redeploy** with the same parameters and to the same resource group.
 
 ### Authorize Planner API Connection
 
-1. Navigate to the resource group.
+1. Navigate to **planner** in the resource group you just created.
 
    ![](Images/planner-api-connection-01.png)
 
@@ -413,7 +413,7 @@ Please **Redeploy** with the same parameters and to the same resource group.
 
    ![](Images/planner-api-connection-02.png)
 
-3. Click **This connection is not authenticated**.
+3. Click **Edit API connection**.
 
    ![](Images/planner-api-connection-03.png)
 
@@ -469,7 +469,12 @@ Follow the similar steps in the previous chapter to authorize the **microsoft-gr
    ![](Images/ms-teams-05.png)
 
 7. Then click **Upload a custom app**.
+
 8. Select the *HuddleTeamsApp.zip*.
+
+9. Click **Add** button.
+
+   ![](Images/ms-teams-15.png)
 
 ### Add Metric Input Tab
 
@@ -485,11 +490,7 @@ Follow the similar steps in the previous chapter to authorize the **microsoft-gr
 
    ![](Images/ms-teams-08.png)
 
-4. Click **Accept**.
-
-   ![](Images/ms-teams-09.png)
-
-5. Click **Save**.
+4. Click **Save**.
 
 ### Add Idea Board Tab
 
@@ -517,7 +518,7 @@ Follow the similar steps in the previous chapter to authorize the **microsoft-gr
 
    ![](Images/ms-teams-14.png)
 
-   Input: IdeaBoard
+   Input: Idea Board
 
 7. Click **Save**. 
 
