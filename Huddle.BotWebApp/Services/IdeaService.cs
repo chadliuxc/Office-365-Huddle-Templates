@@ -27,7 +27,7 @@ namespace Huddle.BotWebApp.Services
             var bucketName = GetBucketName(status);
             var buckets = await _plannerService.GetBucketsAsync(planId);
             var bucketDict = buckets.ToDictionary(b => b.Id);
-            var bucket = buckets.FirstOrDefault(i => i.Name == bucketName);
+            var bucket = buckets.FirstOrDefault(i => StringComparer.InvariantCultureIgnoreCase.Equals(i.Name, bucketName));
 
             var tasks = await _graphServiceClient.Planner.Plans[planId].Tasks.Request().GetAllAsync();
             if (bucket != null)
@@ -135,9 +135,9 @@ namespace Huddle.BotWebApp.Services
             var statusLower = status.ToLower();
             if (statusLower.Contains("new"))
                 return IdeasPlan.Buckets.NewIdea;
-            if (status.Contains("in progress"))
+            if (statusLower.Contains("in progress"))
                 return IdeasPlan.Buckets.InProgress;
-            if (status.Contains("shareable"))
+            if (statusLower.Contains("shareable"))
                 return IdeasPlan.Buckets.Shareable;
             return null;
         }

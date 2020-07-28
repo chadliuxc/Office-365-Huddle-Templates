@@ -106,7 +106,6 @@ namespace Huddle.BotWebApp.Dialogs
             var plannerService = new PlannerService(tokenResponse.Token);
             var ideaService = new IdeaService(tokenResponse.Token);
 
-            var status = listIdeasOptions.Status == "All" ? null : listIdeasOptions.Status;
             var plan = await plannerService.GetTeamPlanAsync(team.Id, team.DisplayName);
             if (plan == null)
             {
@@ -123,10 +122,10 @@ namespace Huddle.BotWebApp.Dialogs
 
             foreach (var bucket in IdeasPlan.Buckets.All)
             {
-                var bucketIdeas = ideas.Where(i => i.Bucket == bucket).ToArray();
+                var bucketIdeas = ideas.Where(i => StringComparer.InvariantCultureIgnoreCase.Equals(i.Bucket, bucket)).ToArray();
                 if (!bucketIdeas.Any()) continue;
 
-                if (string.IsNullOrEmpty(listIdeasOptions.Status))
+                if (listIdeasOptions.Status.Contains("all", StringComparison.InvariantCultureIgnoreCase))
                     await stepContext.Context.SendActivityAsync($"{bucket} ({bucketIdeas.Length + " " + (bucket.Length > 1 ? "ideas" : "idea")})");
 
                 int pageSize = 6;
