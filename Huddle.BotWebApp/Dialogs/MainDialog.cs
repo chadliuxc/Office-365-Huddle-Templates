@@ -64,7 +64,9 @@ namespace Huddle.BotWebApp.Dialogs
                     return await stepContext.BeginDialogAsync(nameof(CreateIdeaDialog), new CreateIdeaOptions(), cancellationToken);
 
                 case IdeasModel.Intent.Idea_List:
-                    return await stepContext.BeginDialogAsync(nameof(ListIdeasDialog), new ListIdeasOptions(), cancellationToken);
+                    var status = luisResult.Entities.Idea_Status?[0].FirstOrDefault();
+                    var option = new ListIdeasOptions() { Status = status };
+                    return await stepContext.BeginDialogAsync(nameof(ListIdeasDialog), option, cancellationToken);
 
                 case IdeasModel.Intent.Team_Switch:
                     return await stepContext.BeginDialogAsync(nameof(SelectTeamDialog), cancellationToken: cancellationToken);

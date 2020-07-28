@@ -59,13 +59,15 @@ namespace Huddle.BotWebApp.Dialogs
                     case "quit":
                         var cancelMessage = MessageFactory.Text(CancelMsgText, CancelMsgText, InputHints.IgnoringInput);
                         await innerDc.Context.SendActivityAsync(cancelMessage, cancellationToken);
-                        return await innerDc.CancelAllDialogsAsync(cancellationToken);
+                        await innerDc.CancelAllDialogsAsync(cancellationToken);
+                        return await innerDc.BeginDialogAsync(InitialDialogId, cancellationToken: cancellationToken);
                     case "logout":
                         // The bot adapter encapsulates the authentication processes.
                         var botAdapter = (BotFrameworkAdapter)innerDc.Context.Adapter;
                         await botAdapter.SignOutUserAsync(innerDc.Context, ConnectionName, null, cancellationToken);
                         await innerDc.Context.SendActivityAsync(MessageFactory.Text("You have been signed out."), cancellationToken);
-                        return await innerDc.CancelAllDialogsAsync(cancellationToken);
+                        await innerDc.CancelAllDialogsAsync(cancellationToken);
+                        return await innerDc.BeginDialogAsync(InitialDialogId, cancellationToken: cancellationToken);
                 }
             }
             return null;

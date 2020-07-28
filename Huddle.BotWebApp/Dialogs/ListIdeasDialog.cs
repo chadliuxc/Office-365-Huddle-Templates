@@ -28,7 +28,7 @@ namespace Huddle.BotWebApp.Dialogs
 
     public class ListIdeasDialog : HuddleDialog
     {
-        private static readonly string[] ideaStatusChoices = new[] { "All ideas", "New ideas", "In progress ideas", "Shareable ideas" };
+        private static readonly string[] ideaStatusChoices = new[] { "All ideas", "New ideas", "In progress ideas", "Completed", "Shareable ideas" };
 
         public ListIdeasDialog(string id, IConfiguration configuration, UserState userState)
             : base(id, configuration, userState)
@@ -79,7 +79,8 @@ namespace Huddle.BotWebApp.Dialogs
         private async Task<DialogTurnResult> ListIdeasPhase1Async(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             var listIdeasOptions = (ListIdeasOptions)stepContext.Options;
-            listIdeasOptions.Status = ((FoundChoice)stepContext.Result).Value;
+            if (string.IsNullOrEmpty(listIdeasOptions.Status))
+                listIdeasOptions.Status = ((FoundChoice)stepContext.Result).Value;
 
             return await stepContext.BeginDialogAsync(nameof(OAuthPrompt), null, cancellationToken);
         }
@@ -106,7 +107,6 @@ namespace Huddle.BotWebApp.Dialogs
             var plannerService = new PlannerService(tokenResponse.Token);
             var ideaService = new IdeaService(tokenResponse.Token);
 
-            var status = listIdeasOptions.Status == "All" ? null : listIdeasOptions.Status;
             var plan = await plannerService.GetTeamPlanAsync(team.Id, team.DisplayName);
             if (plan == null)
             {
@@ -114,7 +114,8 @@ namespace Huddle.BotWebApp.Dialogs
                 return await stepContext.EndDialogAsync(null, cancellationToken);
             }
 
-            var ideas = await ideaService.GetAsync(team.Id, plan.Id, listIdeasOptions.Status, listIdeasOptions.From);
+            var bucketName = ideaService.GetBucketName(listIdeasOptions.Status);
+            var ideas = await ideaService.GetAsync(plan.Id, bucketName, listIdeasOptions.From);
 
             var summary = ideas.Length > 0
                 ? $"Getting {ideas.Length} {(ideas.Length > 1 ? "ideas" : "idea")} from Microsoft Planner, please wait..."
@@ -123,10 +124,10 @@ namespace Huddle.BotWebApp.Dialogs
 
             foreach (var bucket in IdeasPlan.Buckets.All)
             {
-                var bucketIdeas = ideas.Where(i => i.Bucket == bucket).ToArray();
+                var bucketIdeas = ideas.Where(i => StringComparer.InvariantCultureIgnoreCase.Equals(i.Bucket, bucket)).ToArray();
                 if (!bucketIdeas.Any()) continue;
 
-                if (string.IsNullOrEmpty(listIdeasOptions.Status))
+                if (string.IsNullOrEmpty(bucketName))
                     await stepContext.Context.SendActivityAsync($"{bucket} ({bucketIdeas.Length + " " + (bucket.Length > 1 ? "ideas" : "idea")})");
 
                 int pageSize = 6;
