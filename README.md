@@ -149,7 +149,7 @@ In this section, we will connect to Microsoft Teams in PowerShell with a Huddle 
 4. Connect to Microsoft Teams with a Huddle AAD account.
 
    ```
-   $connection = Connect-MicrosoftTeams
+   Connect-MicrosoftTeams
    ```
 
 5. Execute the commands below which reads data from the Excel file and create teams:
@@ -186,7 +186,7 @@ For each team you created, please active the default planer and create 4 buckets
 2. Connect to Microsoft Azure with a Huddle work account.
 
    ```PowerShell
-   $connection = Connect-AzAccount
+   Connect-AzAccount
    ```
 3. Run the following script in the PowerShell console. This script will create a resource group in Azure, then import, train, and publish LUIS App. Replace \<resource group name\> with the resource group name you expect. If the execution is successful, LUIS App Id and ResourceGroup Suffix will be returned. Remember these two values
 
@@ -262,7 +262,7 @@ For each team you created, please active the default planer and create 4 buckets
 2. Connect to Microsoft Azure with a Huddle AAD account.
 
    ```PowerShell
-   $connection = Connect-Graph
+   Connect-Graph
    ```
 3. Run the following script in the PowerShell console. This script will create the following 4 Applications in AAD. The names of these 5 Applications are defined at the top of [NewApps.ps1](./Files/NewApps.ps1).
    * Huddle Bot
