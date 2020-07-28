@@ -22,9 +22,8 @@ namespace Huddle.BotWebApp.Services
             this._plannerService = new PlannerService(token);
         }
 
-        public async Task<Idea[]> GetAsync(string teamId, string planId, string status, DateTime? from)
+        public async Task<Idea[]> GetAsync(string planId, string bucketName, DateTime? from)
         {
-            var bucketName = GetBucketName(status);
             var buckets = await _plannerService.GetBucketsAsync(planId);
             var bucketDict = buckets.ToDictionary(b => b.Id);
             var bucket = buckets.FirstOrDefault(i => StringComparer.InvariantCultureIgnoreCase.Equals(i.Name, bucketName));
@@ -112,6 +111,22 @@ namespace Huddle.BotWebApp.Services
             return $"https://tasks.office.com/{tenantId}/EN-US/Home/Planner#/plantaskboard?groupId={groupId}&planId={planId}&taskId={taskId}";
         }
 
+        public string GetBucketName(string status)
+        {
+            if (string.IsNullOrEmpty(status)) return null;
+
+            var statusLower = status.ToLower();
+            if (statusLower.Contains("new"))
+                return IdeasPlan.Buckets.NewIdea;
+            if (statusLower.Contains("in progress"))
+                return IdeasPlan.Buckets.InProgress;
+            if (statusLower.Contains("shareable"))
+                return IdeasPlan.Buckets.Shareable;
+            if (statusLower.Contains("completed"))
+                return IdeasPlan.Buckets.Completed;
+            return null;
+        }
+
         private string GetNextStepsFromDetails(PlannerTaskDetails details)
         {
             return Regex.Match(
@@ -128,18 +143,5 @@ namespace Huddle.BotWebApp.Services
                 RegexOptions.Compiled | RegexOptions.Multiline).Value;
         }
 
-        private string GetBucketName(string status)
-        {
-            if (string.IsNullOrEmpty(status)) return null;
-
-            var statusLower = status.ToLower();
-            if (statusLower.Contains("new"))
-                return IdeasPlan.Buckets.NewIdea;
-            if (statusLower.Contains("in progress"))
-                return IdeasPlan.Buckets.InProgress;
-            if (statusLower.Contains("shareable"))
-                return IdeasPlan.Buckets.Shareable;
-            return null;
-        }
     }
 }
