@@ -403,6 +403,8 @@ Please **Redeploy** with the same parameters and to the same resource group.
 
    * Click **Save**.
 
+3. 
+
 ### Authorize Planner API Connection
 
 1. Navigate to **planner** in the resource group you just created.
@@ -437,6 +439,37 @@ Follow the similar steps in the previous chapter to authorize the **teams** API 
 Follow the similar steps in the previous chapter to authorize the **microsoft-graph** API. 
 
 ![](Images/ms-graph-connection.png)
+
+### Add Prediction Resource in LUIS App
+1. Open [LUIS](https://luis.ai) site and log in with Huddle work account
+
+![](Images/luis-config-01.png)
+
+2. Navigate to **My apps** tab
+
+3. Select the Subscription and Resource deployed in the previous step (the suffix of this resource has the same suffix as the luis app deployed in the previous step)
+
+![](Images/luis-config-02.png)
+
+4. Click on the listed app
+
+5. Select **MANAGE** tab on the top
+
+![](Images/luis-config-03.png)
+
+6. Select **Azure Resources** tab on the left
+
+![](Images/luis-config-04.png)
+
+7. Click **Add prediction resource** button
+
+![](Images/luis-config-05.png)
+
+8. Select the Subscription and Resource deployed in the previous step (the suffix of this resource has the same suffix as the luis app deployed in the previous step)
+
+![](Images/luis-config-06.png)
+
+9. Click **Done** button to save changes.
 
 ## Configure Teams App
 
