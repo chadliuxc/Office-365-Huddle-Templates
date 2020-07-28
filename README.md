@@ -41,6 +41,8 @@ Improving quality of care depends on many things – process, patient care, and 
 * [Provision Lists](#provision-lists)
 
 [Create App Registrations in AAD](#create-app-registrations-in-aad)
+* [Register App in AAD](#register-app-in-aad)
+* [Consent Permissions](#consent-permissions)
 
 [Deploy Azure Components with ARM Template](#deploy-azure-components-with-arm-template)
 
@@ -50,9 +52,6 @@ Improving quality of care depends on many things – process, patient care, and 
 
 [Follow-up Steps](#follow-up-steps)
 
-* [Add Reply URL and Admin Consent Bot Web App](#add-reply-url-and-admin-consent-bot-web-app)
-* [Add Reply URL and Admin Consent Metric Web App](#add-reply-url-and-admin-consent-metric-web-app)
-* [Add Reply URL to MS Graph Connector App Registration](#add-reply-url-to-ms-graph-connector-app-registration)
 * [Customize and Configure the Bot](#customize-and-configure-the-bot)
 * [Authorize Planner API Connection](#authorize-planner-api-connection)
 * [Authorize Teams API Connection](#authorize-teams-api-connection)
@@ -60,10 +59,10 @@ Improving quality of care depends on many things – process, patient care, and 
 
 [Configure Teams App](#configure-teams-app)
 
-* [Start Conversation with The Bot](#start-conversation-with-the-bot)
 * [Create Teams App Package and Side-load It](#create-teams-app-package-and-side-load-it)
 * [Add Metric Input Tab](#add-metric-input-tab)
 * [Add Idea Board Tab](#add-idea-board-tab)
+* [Start Conversation with The Bot](#start-conversation-with-the-bot)
 
 ## Foreword
 
@@ -169,7 +168,7 @@ For each team you created, please active the default planer and create 4 buckets
 
    Click **Planner**.
 
-   Find the planner which has the same name as the team, then click it.
+   Click **New plan** and then click **Add to an existing Office 365 Group**. Create a plan with the same name in the previously created group.
 
    ![](Images/ms-planner-02.png)
 
@@ -189,11 +188,11 @@ For each team you created, please active the default planer and create 4 buckets
    ```PowerShell
    $connection = Connect-AzAccount
    ```
-3. Run the following script in the PowerShell console. This script will create a resource group in Azure, then import, train, and publish LUIS App. Replace \<resource group name\> with the resource group name you expect. If the execution is successful, LUIS App Id and LUIS App Key will be returned. Remember these two values
+3. Run the following script in the PowerShell console. This script will create a resource group in Azure, then import, train, and publish LUIS App. Replace \<resource group name\> with the resource group name you expect. If the execution is successful, LUIS App Id and ResourceGroup Suffix will be returned. Remember these two values
 
    ```PowerShell
    #Replace <resource group name> with the resource group name you expect.
-   .\DeployLuis.ps1 -appPath .\LUISApp.json -resourceGroup <resource group name>
+   .\DeployLuis.ps1 -appPath .\LUISApp.json -resourceTemplate .\LUISTemplate.json -resourceGroup <resource group name>
    ```
 
 ## Create SharePoint Site and Lists
@@ -257,6 +256,7 @@ For each team you created, please active the default planer and create 4 buckets
 
 ## Create App Registrations in AAD 
 
+### Register App in AAD
 1. Open PowerShell Console and navigate to the `/Files` folder in PowerShell
 
 2. Connect to Microsoft Azure with a Huddle AAD account.
@@ -264,27 +264,41 @@ For each team you created, please active the default planer and create 4 buckets
    ```PowerShell
    $connection = Connect-Graph
    ```
-3. Run the following script in the PowerShell console. This script will create the following 5 Applications in AAD. The names of these 5 Applications are defined at the top of [NewApps.ps1](./Files/NewApps.ps1).
+3. Run the following script in the PowerShell console. This script will create the following 4 Applications in AAD. The names of these 5 Applications are defined at the top of [NewApps.ps1](./Files/NewApps.ps1).
    * Huddle Bot
    * Huddle Bot Web App
    * Huddle Metric Web App
    * Huddle MS Graph Connector App
 
    ```PowerShell
-   .\NewApps.ps1
+   .\NewApps.ps1 -ResourceGroupSuffix <your resourceGroupSuffix value>
    ```
+   > Notes:
+   > The resourceGroupSuffix value is generated in **Import and publish LUIS App** section
+
 4. After the script runs successfully, it will return the following data, remember these data
    * Tenant Id
-   * Bot App Id
-   * Bot App Secret
-   * Bot WebApp Id
-   * Bot WebApp Secret
-   * Metric Web Id
-   * Metric Web Secret
-   * Graph Connector App Resource Id
-   * Graph Connector App Resource Secret
-   * Certificate
-   * Certificate Password
+   * Microsoft App Id
+   * Microsoft App Password
+   * Bot Client Id
+   * Bot Client Secret
+   * Metric Client Id
+   * Metric Client Secret
+   * Graph Client Id
+   * Graph Client Secret
+   * Certificate Pfx Base64
+   * Certificate Pfx Password
+
+### Consent Permissions
+1. Log in to [Azure Portal](https://portal.azure.com) with Huddle AAD account. 
+
+2. Find **Huddle Bot Web App** just created in App registrations.
+
+3. In **API Permission** tab, consent the permission
+
+   ![](./Images/app-registration-consent.png)
+
+4. Follow step 2 and step 3, consent the permission for **Huddle Metric Web App** and **Huddle MS Graph Connector App**
 
 ## Deploy Azure Components with ARM Template
 
@@ -343,9 +357,10 @@ For each team you created, please active the default planer and create 4 buckets
 
    You have collected most of the values in previous steps. For the rest parameters:
 
+   * **Resource group**: select to created resource group in previous step. 
    * **Bot Name**: the name of the bot, will be used as Display Name of Bot Registration.
-   * **Global Team**: the name of the global team.
-   * **Source Code Repository**:  use the URL of the repository you just created -`https://github.com/<YourAccount>/Huddle`
+   * **Global Team**: the name of the global team that is one of the Teams created earlier. A webjob will move shared tasks in other team planners to the shared bucket of Global Team
+   * **Source Code Repository**:  use the URL of the repository you just created -`https://github.com/<YourAccount>/Office-365-Huddle-Templates`
    * **Source Code Branch**: master
    * **Source code Manual Integration**: false
    * Check **I agree to the terms and conditions stated above**.
@@ -372,57 +387,9 @@ Please **Redeploy** with the same parameters and to the same resource group.
 
 ## Follow-up Steps
 
-### Add Reply URL and Admin Consent Bot Web App
-
-1. Get the URL of the Bot Web app, and change the schema to http**s**, we will get a base URL.
-
-    ![](Images/bot-web-app.png)
-
-    For example: `https://huddle-bot.azurewebsites.net`
-
-2. Append `/` to the base URL, we will get the replay URL. 
-
-   For example: `https://huddle-bot.azurewebsites.net/`
-
-   Add it the Bot App Registration.
-
-   ![](Images/app-registration-reply-urls.png)
-
-3. Append `/admin/consent` to the base URL, we will get the admin consent URL.
-
-   For example: `https://huddle-bot.azurewebsites.net/admin/consent`
-
-   Open it in a browser, sign in with a Huddle admin account.
-
-   ![](Images/bot-web-app-admin-consent.png)
-
-   Click **Accept**.
-
-### Add Reply URL and Admin Consent Metric Web App
-
-Follow the similar steps in the previous chapter to add the reply URL and admin consent. 
-
-### Add Reply URL to MS Graph Connector App Registration
-
-1. Get the redirect URL from the Microsoft graph connector. 
-
-   ![](Images/graph-connector.png)
-
-   * Click the connector, then click **Edit**:
-
-   ![](Images/graph-connector-edit.png)
-
-   * Click **Security**:
-
-     ![](Images/graph-connector-redirect-url.png)
-
-     Copy the **Redirect URL** at the bottom of the page.
-
-2. Add it to reply URLs of the MS Graph Connector App Registration.
-
 ### Customize and Configure the Bot
 
-1. Navigate to the Bot Channels Registration you created.
+1. On Azure Portal, find the Resource Group you just created. Navigate to the Bot Channels Registration you created.
 
    ![](Images/bot-27.png)
 
@@ -438,7 +405,7 @@ Follow the similar steps in the previous chapter to add the reply URL and admin 
 
 ### Authorize Planner API Connection
 
-1. Navigate to the resource group.
+1. Navigate to **planner** in the resource group you just created.
 
    ![](Images/planner-api-connection-01.png)
 
@@ -446,7 +413,7 @@ Follow the similar steps in the previous chapter to add the reply URL and admin 
 
    ![](Images/planner-api-connection-02.png)
 
-3. Click **This connection is not authenticated**.
+3. Click **Edit API connection**.
 
    ![](Images/planner-api-connection-03.png)
 
@@ -473,34 +440,14 @@ Follow the similar steps in the previous chapter to authorize the **microsoft-gr
 
 ## Configure Teams App
 
-### Start Conversation with The Bot
-
-Follow the step below to start 1:1 conversation with the Bot in Microsoft Teams
-
-1. Find the URL of Microsoft Teams Channel of the Bot, 
-
-   ![](Images/bot-16.png)
-
-   Then open it in your browser:
-
-   ![](Images/bot-22.png)
-
-2. Click **Open Microsoft Teams**.
-
-Another way to start 1:1 talk is using the **MicrosoftAppId** of the Bot:
-
-![](Images/bot-23.png)
-
 ### Create Teams App Package and Side-load It
 
 1. Open `/Files/TeamsAppPackage/manifest.json` with a text editor.
 
 2. Replace the following 2 placeholders with the corresponding values you got in previous guides:
 
-   * `<MicrosoftAppId>`: the Application Id of the Microsoft App registered for Bot Registration.
-
-     ![](Images/ms-teams-01.png)
-
+   * `<MicrosoftAppId>`: Microsoft App Id generated in previous step.
+   
    * `<MetricWebAppDomain>`: the domain of the Metric Web App
 
      ![](Images/ms-teams-02.png)
@@ -522,7 +469,12 @@ Another way to start 1:1 talk is using the **MicrosoftAppId** of the Bot:
    ![](Images/ms-teams-05.png)
 
 7. Then click **Upload a custom app**.
+
 8. Select the *HuddleTeamsApp.zip*.
+
+9. Click **Add** button.
+
+   ![](Images/ms-teams-15.png)
 
 ### Add Metric Input Tab
 
@@ -538,11 +490,7 @@ Another way to start 1:1 talk is using the **MicrosoftAppId** of the Bot:
 
    ![](Images/ms-teams-08.png)
 
-4. Click **Accept**.
-
-   ![](Images/ms-teams-09.png)
-
-5. Click **Save**.
+4. Click **Save**.
 
 ### Add Idea Board Tab
 
@@ -570,9 +518,27 @@ Another way to start 1:1 talk is using the **MicrosoftAppId** of the Bot:
 
    ![](Images/ms-teams-14.png)
 
-   Input: IdeaBoard
+   Input: Idea Board
 
 7. Click **Save**. 
+
+### Start Conversation with The Bot
+
+Follow the step below to start 1:1 conversation with the Bot in Microsoft Teams
+
+1. Find the URL of Microsoft Teams Channel of the Bot, 
+
+   ![](Images/bot-16.png)
+
+   Then open it in your browser:
+
+   ![](Images/bot-22.png)
+
+2. Click **Open Microsoft Teams**.
+
+Another way to start 1:1 talk is using the **MicrosoftAppId** of the Bot:
+
+![](Images/bot-23.png)
 
 
 

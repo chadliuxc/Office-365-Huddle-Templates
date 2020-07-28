@@ -1,9 +1,21 @@
+param(
+    [Parameter(Mandatory)]
+    [String]$ResourceGroupSuffix
+)
+
 #define all apps names
-$botAppName = "Huddle Bot Chad Dev";
-$botWebAppName = "Huddle Bot Web App Chad Dev";
-$metricWebAppName = "Huddle Metric Web App Chad Dev";
-$graphConnectorAppName = "Huddle MS Graph Connector App Chad Dev";
+$botAppName = "Huddle Bot";
+$botWebAppName = "Huddle Bot Web App";
+$metricWebAppName = "Huddle Metric Web App";
+$graphConnectorAppName = "Huddle MS Graph Connector App";
 $allAppsName = @($botAppName, $botWebAppName, $metricWebAppName, $graphConnectorAppName);
+
+function Get-UniqueString ([string]$id, $length=13)
+{
+$hashArray = (new-object System.Security.Cryptography.SHA512Managed).ComputeHash($id.ToCharArray())
+-join ($hashArray[1..$length] | ForEach-Object { [char]($_ % 26 + [byte][char]'a') })
+}
+
 
 $PasswordCredential = @{PasswordCredential=@{DisplayName="devKey"}}
 
@@ -23,7 +35,7 @@ foreach ($appName in $allAppsName) {
 
 #create bot app
 Write-Host "Creating $botAppName"
-$botApp = New-MgApplication -DisplayName $botAppName -SignInAudience "AzureADandPersonalMicrosoftAccount"
+$botApp = New-MgApplication -DisplayName $botAppName -SignInAudience "AzureADandPersonalMicrosoftAccount" -ImplicitGrantSettingEnableIdTokenIssuance
 #Generate ClientId and ClientKey
 $botAppPassword = Add-MgApplicationPassword -ApplicationId $botApp.Id -BodyParameter $PasswordCredential
 
@@ -31,10 +43,17 @@ $botAppPassword = Add-MgApplicationPassword -ApplicationId $botApp.Id -BodyParam
 Write-Host "Creating $botWebAppName"
 #generate RequiredResourceAccess attribute
 $botWebAppResourceAccess = @(
-    @{ResourceAppId="00000003-0000-0000-c000-000000000000"; ResourceAccess=@(@{Id="4e46008b-f24c-477d-8fff-7bb4ec7aafe0";Type="Scope"},@{Id="a154be20-db9c-4678-8ab7-66f6cc099a59";Type="Scope"})},
-    @{ResourceAppId="00000003-0000-0ff1-ce00-000000000000"; ResourceAccess=@(@{Id="9bff6588-13f2-4c48-bbf2-ddab62256b36";Type="Role"})};
+    @{ResourceAppId="00000003-0000-0000-c000-000000000000"; ResourceAccess=@(
+        @{Id="37f7f235-527c-4136-accd-4a02d197296e";Type="Scope"},
+        @{Id="14dad69e-099b-42c9-810b-d002981feec1";Type="Scope"},
+        @{Id="4e46008b-f24c-477d-8fff-7bb4ec7aafe0";Type="Scope"},
+        @{Id="205e70e5-aba6-4c52-a976-6d2d46c48043";Type="Scope"},
+        @{Id="485be79e-c497-4b35-9400-0e3fa7f2a5d4";Type="Scope"},
+        @{Id="b340eb25-3456-403f-be2f-af7a0d370277";Type="Scope"}
+    )}
 );
-$botWebApp = New-MgApplication -DisplayName $botWebAppName -RequiredResourceAccess $botWebAppResourceAccess -SignInAudience "AzureADandPersonalMicrosoftAccount"
+$botWebRedirectUrl = "https://token.botframework.com/.auth/web/redirect"
+$botWebApp = New-MgApplication -DisplayName $botWebAppName -RequiredResourceAccess $botWebAppResourceAccess -SignInAudience "AzureADandPersonalMicrosoftAccount" -WebRedirectUris $botWebRedirectUrl -ImplicitGrantSettingEnableIdTokenIssuance;
 #Generate ClientId and ClientKey
 $botWebAppPassword = Add-MgApplicationPassword -ApplicationId $botWebApp.Id -BodyParameter $PasswordCredential
 
@@ -63,7 +82,8 @@ $bytes = $cert.Export([System.Security.Cryptography.X509Certificates.X509Content
 $certBase64 = [System.Convert]::ToBase64String($bytes)
 $certBase64|Out-File .\cert.txt
 
-$metricWebApp = New-MgApplication -DisplayName $metricWebAppName -RequiredResourceAccess $metricWebAppResourceAccess -SignInAudience "AzureADMyOrg" -KeyCredentials @($keyCredential)
+$metricWebRedirectUrl = "https://huddle-metric-$ResourceGroupSuffix.azurewebsites.net/"
+$metricWebApp = New-MgApplication -DisplayName $metricWebAppName -RequiredResourceAccess $metricWebAppResourceAccess -SignInAudience "AzureADMyOrg" -WebRedirectUris $metricWebRedirectUrl -KeyCredentials @($keyCredential) -ImplicitGrantSettingEnableIdTokenIssuance
 #Generate ClientId and ClientKey
 $metricWebAppPassword = Add-MgApplicationPassword -ApplicationId $metricWebApp.Id -BodyParameter $PasswordCredential
 
@@ -73,25 +93,26 @@ Write-Host "Create $graphConnectorAppName"
 $graphConnectorAppResourceAccess = @(
     @{ResourceAppId="00000003-0000-0000-c000-000000000000"; ResourceAccess=@(@{Id="a154be20-db9c-4678-8ab7-66f6cc099a59";Type="Scope"},@{Id="4e46008b-f24c-477d-8fff-7bb4ec7aafe0";Type="Scope"},@{Id="e1fe6dd8-ba31-4d61-89e7-88639da4683d";Type="Scope"})}
 );
-$graphConnectorApp = New-MgApplication -DisplayName $graphConnectorAppName -RequiredResourceAccess $graphConnectorAppResourceAccess -SignInAudience "AzureADMyOrg"
+$grpahConnectorWebRedirectUrl = "https://logic-apis-westus.consent.azure-apim.net/redirect"
+$graphConnectorApp = New-MgApplication -DisplayName $graphConnectorAppName -RequiredResourceAccess $graphConnectorAppResourceAccess -SignInAudience "AzureADMyOrg" -WebRedirectUris $grpahConnectorWebRedirectUrl -ImplicitGrantSettingEnableIdTokenIssuance
 #Generate ClientId and ClientKey
 $graphConnectorAppPassword = Add-MgApplicationPassword -ApplicationId $graphConnectorApp.Id -BodyParameter $PasswordCredential
 
 Write-Host "Tenant Id: $($org.Id)" -ForegroundColor Green
 
-Write-Host "Bot App Id: $($botApp.AppId)" -ForegroundColor Green
-Write-Host "Bot App Secret: $($botAppPassword.SecretText)" -ForegroundColor Green
+Write-Host "Microsoft App Id: $($botApp.AppId)" -ForegroundColor Green
+Write-Host "Microsoft App Password: $($botAppPassword.SecretText)" -ForegroundColor Green
 
-Write-Host "Bot WebApp Id: $($botWebApp.AppId)" -ForegroundColor Green
-Write-Host "Bot WebApp Secret: $($botWebAppPassword.SecretText)" -ForegroundColor Green
+Write-Host "Bot Client Id: $($botWebApp.AppId)" -ForegroundColor Green
+Write-Host "Bot Client Secret: $($botWebAppPassword.SecretText)" -ForegroundColor Green
 
-Write-Host "Metric Web Id: $($metricWebApp.AppId)" -ForegroundColor Green
-Write-Host "Metric Web Secret: $($metricWebAppPassword.SecretText)" -ForegroundColor Green
+Write-Host "Metric Client Id: $($metricWebApp.AppId)" -ForegroundColor Green
+Write-Host "Metric Client Secret: $($metricWebAppPassword.SecretText)" -ForegroundColor Green
 
-Write-Host "Graph Connector App Resource Id: $($graphConnectorApp.AppId)" -ForegroundColor Green
-Write-Host "Graph Connector App Resource Secret: $($graphConnectorAppPassword.SecretText)" -ForegroundColor Green
+Write-Host "Graph Client Id: $($graphConnectorApp.AppId)" -ForegroundColor Green
+Write-Host "Graph Client Secret: $($graphConnectorAppPassword.SecretText)" -ForegroundColor Green
 
-Write-Host "Cert: $certBase64" -ForegroundColor Green
-Write-Host "Cert Password: $guid" -ForegroundColor Green
+Write-Host "Certificate Pfx Base64: $certBase64" -ForegroundColor Green
+Write-Host "Certificate Pfx Password: $guid" -ForegroundColor Green
 
 

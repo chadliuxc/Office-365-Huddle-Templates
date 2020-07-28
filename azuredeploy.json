@@ -50,7 +50,7 @@
     },
     "sourceCodeRepositoryURL": {
       "type": "string",
-      "defaultValue": "https://github.com/<YourAccount>/Huddle",
+      "defaultValue": "https://github.com/<YourAccount>/Office-365-Huddle-Templates",
       "metadata": {
         "description": "Source code repository URL"
       }
@@ -473,68 +473,78 @@
       }
     },
     {
-      "apiVersion": "2018-07-12",
       "type": "Microsoft.BotService/botServices",
+      "apiVersion": "2018-07-12",
       "name": "[variables('botId')]",
       "location": "global",
-      "kind": "bot",
       "sku": {
-        "name": "S1"
+        "name": "F0"
       },
+      "kind": "bot",
       "properties": {
         "name": "[variables('botId')]",
         "displayName": "[parameters('botName')]",
         "endpoint": "[variables('botMessagingEndPoint')]",
         "msaAppId": "[parameters('microsoftAppId')]",
-        "configuredChannels": [
-          "webchat",
-          "msteams"
-        ],
-        "enabledChannels": [
-          "webchat",
-          "directline",
-          "msteams"
-        ]
+        "luisAppIds": []
+      }
+    },
+    {
+      "type": "Microsoft.BotService/botServices/channels",
+      "apiVersion": "2018-07-12",
+      "name": "[concat(variables('botId'), '/MsTeamsChannel')]",
+      "location": "global",
+      "properties": {
+        "properties": {
+          "enableCalling": false,
+          "isEnabled": true
+        },
+        "channelName": "MsTeamsChannel"
       },
-      "resources": [
-        {
-          "name": "[concat(variables('botId'), '/', 'MsTeamsChannel')]",
-          "type": "Microsoft.BotService/botServices/channels",
-          "apiVersion": "2018-07-12",
-          "location": "global",
-          "properties": {
-            "properties": {
-              "enableCalling": false,
-              "incomingCallRoute": "graphPma",
-              "isEnabled": true
-            },
-            "channelName": "MsTeamsChannel"
-          },
-          "dependsOn": [
-            "[resourceId('Microsoft.BotService/botServices', variables('botId'))]"
+      "dependsOn": [
+        "[resourceId('Microsoft.BotService/botServices', variables('botId'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.BotService/botServices/channels",
+      "apiVersion": "2018-07-12",
+      "name": "[concat(variables('botId'), '/WebChatChannel')]",
+      "location": "global",
+      "dependsOn": [
+        "[resourceId('Microsoft.BotService/botServices', variables('botId'))]"
+      ],
+      "properties": {
+        "properties": {
+          "sites": [
+            {
+              "siteName": "Default Site",
+              "isEnabled": true,
+              "enablePreview": true
+            }
           ]
         },
-        {
-          "name": "[concat(variables('botId'), '/', variables('botRegisterConnectionName'))]",
-          "type": "Microsoft.BotService/botServices/Connections",
-          "location": "global",
-          "apiVersion": "2018-07-12",
-          "properties": {
-            "clientId": "[parameters('microsoftAppId')]",
-            "clientSecret": "[parameters('microsoftAppPassword')]",
-            "scopes": "openid profile User.ReadBasic.All Team.ReadBasic.All Sites.Read.All Group.ReadWrite.All",
-            "serviceProviderId": "30dd229c-58e3-4a48-bdfd-91ec48eb906c",
-            "parameters": [
-              {
-                "key": "tenantId",
-                "value": "common"
-              }
-            ]
-          },
-          "dependsOn": [
-            "[resourceId('Microsoft.BotService/botServices', variables('botId'))]"
-          ]
-        }
+        "channelName": "WebChatChannel"
+      }
+    },
+    {
+      "name": "[concat(variables('botId'), '/', variables('botRegisterConnectionName'))]",
+      "type": "Microsoft.BotService/botServices/Connections",
+      "location": "global",
+      "apiVersion": "2018-07-12",
+      "properties": {
+        "clientId": "[parameters('botClientId')]",
+        "clientSecret": "[parameters('botClientSecret')]",
+        "scopes": "openid profile User.ReadBasic.All Team.ReadBasic.All Sites.Read.All Group.ReadWrite.All",
+        "serviceProviderId": "30dd229c-58e3-4a48-bdfd-91ec48eb906c",
+        "parameters": [
+          {
+            "key": "tenantId",
+            "value": "common"
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.BotService/botServices', variables('botId'))]"
       ]
     },
     {

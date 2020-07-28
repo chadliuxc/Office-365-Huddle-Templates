@@ -2,7 +2,9 @@ param(
     [Parameter(Mandatory)]
     [String]$resourceGroupName,
     [Parameter(Mandatory)]
-    [String]$appPath
+    [String]$appPath,
+    [Parameter(Mandatory)]
+    [String]$resourceTemplate
 )
 
 #Connect Azure
@@ -18,8 +20,16 @@ else {
 }
 
 Write-Host "Creating LUIS.Authoring"
-$luis = New-AzCognitiveServicesAccount -ResourceGroupName $resourceGroupName -Name 'huddleLuisAuthoring' -Type 'LUIS.Authoring' -SkuName 'F0' -Location 'westus'
-$luisKeys = Get-AzCognitiveServicesAccountKey -ResourceGroupName $resourceGroupName -Name 'huddleLuisAuthoring'
+#$luis = New-AzCognitiveServicesAccount -ResourceGroupName $resourceGroupName -Name 'huddleLuisAuthoring' -Type 'LUIS.Authoring' -SkuName 'F0' -Location 'westus'
+$result = New-AzResourceGroupDeployment -ResourceGroupName $resourceGroupName -TemplateFile $resourceTemplate 
+$resourceGroupUnique = $result.Outputs.uniqueString.Value
+$luisAuthoringName = $result.Outputs.luisAuthoringName.Value
+if ([string]::IsNullOrEmpty($resourceGroupUnique)){
+    Write-Host "Create resource failed" -ForegroundColor Red
+    exit;
+}
+
+$luisKeys = Get-AzCognitiveServicesAccountKey -ResourceGroupName $resourceGroupName -Name $luisAuthoringName
 $appName = "huddle-" + (New-Guid).ToString();
 $key = $luisKeys.Key1
 $file = $appPath
@@ -36,4 +46,5 @@ Write-Host "Publishing $appName"
 Invoke-Expression -Command "luis publish version --appId `"$($luisApp.Id)`" --region 'westus' --authoringKey `"$key`" --versionId '0.1' --wait" | ConvertFrom-Json;
 
 Write-Host "LUIS App Id: $($luisApp.Id)" -ForegroundColor Green
-Write-Host "LUIS App Key: $key" -ForegroundColor Green
+#Write-Host "LUIS App Key: $key" -ForegroundColor Green
+Write-Host "ResourceGroup Suffix: $resourceGroupUnique" -ForegroundColor Green
