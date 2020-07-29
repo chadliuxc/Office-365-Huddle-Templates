@@ -535,9 +535,9 @@ Follow the similar steps in the previous chapter to authorize the **microsoft-gr
 
 3. Click **Planner**.
 
-   ![](Images/ms-teams-12.png)
+4. Choose **Use an existing plan**, then select the plan which has the same name as the team.
 
-   Choose **Use an existing plan**, then select the plan which has the same name as the team.
+   ![](Images/ms-teams-12.png)
 
 5. Click **Save**.
 
