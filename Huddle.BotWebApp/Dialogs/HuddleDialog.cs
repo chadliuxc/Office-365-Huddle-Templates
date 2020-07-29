@@ -35,8 +35,7 @@ namespace Huddle.BotWebApp.Dialogs
             {
                 ConnectionName = ConnectionName,
                 Text = "Please Sign In",
-                Title = "Sign In",
-                Timeout = 1000 * 60 * 5 // 5 minutes
+                Title = "Sign In"
             };
             AddDialog(new OAuthPrompt(nameof(OAuthPrompt), oauthPromptSettings));
         }

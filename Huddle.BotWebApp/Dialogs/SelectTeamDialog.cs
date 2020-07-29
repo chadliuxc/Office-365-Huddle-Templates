@@ -54,9 +54,6 @@ namespace Huddle.BotWebApp.Dialogs
                 return await stepContext.EndDialogAsync(cancellationToken: cancellationToken);
             }
 
-            if (stepContext.Context.Activity.Type == ActivityTypes.Invoke)
-                await stepContext.Context.SendActivityAsync("You have signed in successfully.");
-
             var service = new TeamsService(tokenResponse.Token);
             var teams = await service.GetJoinedTeamsAsync();
             if (teams.Length == 0)

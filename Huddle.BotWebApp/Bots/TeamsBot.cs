@@ -33,6 +33,7 @@ namespace Huddle.BotWebApp.Bots
 
         protected override async Task OnTeamsSigninVerifyStateAsync(ITurnContext<IInvokeActivity> turnContext, CancellationToken cancellationToken)
         {
+            await turnContext.SendActivityAsync("You have signed in successfully.");
             Logger.LogInformation("Running dialog with signin/verifystate from an Invoke Activity.");
             await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
         }
