@@ -150,6 +150,14 @@ In this section, we will connect to Microsoft Teams in PowerShell with a Huddle 
    ```
    Connect-MicrosoftTeams
    ```
+   
+   > Notes:
+   >
+   > `Connect-MicrosoftTeams` cannot be executed under the Restricted execution policy of Powershell. Need to run following command to relax the execution environment
+   > ```powershell
+   > Set-ExecutionPolicy -ExecutionPolicy RemoteSigned 
+   > ```
+   >
 
 5. Execute the commands below which reads data from the Excel file and create teams:
 
@@ -220,7 +228,13 @@ For each team you created, please active the default planer and create 4 buckets
 
 4. Click **OK**.
 
-5. Copy aside the URL of the site collection. It will be used as the value of **Base SP Site Url** parameter of the ARM Template.
+5. When the site is created, use Huddle AAD account to log in to the site just created.
+
+6. Click the gear in the upper right corner of the page, **Shared with...**, **Invite people**. Add the users you want to use. And click **Save**
+
+   ![](Images/sp-04.png)
+
+7. Copy aside the URL of the site collection. It will be used as the value of **Base SP Site Url** parameter of the ARM Template.
 
 ###  Provision Lists
 
