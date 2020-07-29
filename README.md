@@ -71,8 +71,7 @@ This document will guide you to deploy the solution to your environment.
 First, an Azure AAD is required to register the app registrations. In this document, the Azure AAD will be called "Huddle AAD", and an account in Huddle AAD will be called Huddle work account.
 
 * All app registrations should be created in the Huddle AAD. 
-* Bot/Luis/Microsoft App should be registered with a Huddle work account.
-
+* Bot/Luis/Microsoft App should be registered with a Huddle work account. This account should have permission to deploy resource and create resource group in Azure.
 
 * SharePoint lists should be created on SharePoint associating with Huddle AAD.
 
@@ -149,7 +148,7 @@ In this section, we will connect to Microsoft Teams in PowerShell with a Huddle 
 4. Connect to Microsoft Teams with a Huddle AAD account.
 
    ```
-   $connection = Connect-MicrosoftTeams
+   Connect-MicrosoftTeams
    ```
 
 5. Execute the commands below which reads data from the Excel file and create teams:
@@ -186,7 +185,7 @@ For each team you created, please active the default planer and create 4 buckets
 2. Connect to Microsoft Azure with a Huddle work account.
 
    ```PowerShell
-   $connection = Connect-AzAccount
+   Connect-AzAccount
    ```
 3. Run the following script in the PowerShell console. This script will create a resource group in Azure, then import, train, and publish LUIS App. Replace \<resource group name\> with the resource group name you expect. If the execution is successful, LUIS App Id and ResourceGroup Suffix will be returned. Remember these two values
 
@@ -262,9 +261,9 @@ For each team you created, please active the default planer and create 4 buckets
 2. Connect to Microsoft Azure with a Huddle AAD account.
 
    ```PowerShell
-   $connection = Connect-Graph
+   Connect-Graph
    ```
-3. Run the following script in the PowerShell console. This script will create the following 4 Applications in AAD. The names of these 5 Applications are defined at the top of [NewApps.ps1](./Files/NewApps.ps1).
+3. Run the following script in the PowerShell console. This script will create the following 4 Applications in AAD. The names of these 4 Applications are defined at the top of [NewApps.ps1](./Files/NewApps.ps1).
    * Huddle Bot
    * Huddle Bot Web App
    * Huddle Metric Web App
@@ -420,7 +419,7 @@ Please **Redeploy** with the same parameters and to the same resource group.
 
 4. Click **Authorize**.
 
-   Pick up or input the Huddle work account. The user account should be in every team.
+   Pick up or input the Huddle AAD account. The user account should be in every team.
 
    Sign in the account.
 
@@ -437,6 +436,37 @@ Follow the similar steps in the previous chapter to authorize the **teams** API 
 Follow the similar steps in the previous chapter to authorize the **microsoft-graph** API. 
 
 ![](Images/ms-graph-connection.png)
+
+### Add Prediction Resource in LUIS App
+1. Open [LUIS](https://luis.ai) site and log in with Huddle work account
+
+![](Images/luis-config-01.png)
+
+2. Navigate to **My apps** tab
+
+3. Select the Subscription and Resource deployed in the previous step (the suffix of this resource has the same suffix as the luis app deployed in the previous step)
+
+![](Images/luis-config-02.png)
+
+4. Click on the listed app
+
+5. Select **MANAGE** tab on the top
+
+![](Images/luis-config-03.png)
+
+6. Select **Azure Resources** tab on the left
+
+![](Images/luis-config-04.png)
+
+7. Click **Add prediction resource** button
+
+![](Images/luis-config-05.png)
+
+8. Select the Subscription and Resource deployed in the previous step (the suffix of this resource has the same suffix as the luis app deployed in the previous step)
+
+![](Images/luis-config-06.png)
+
+9. Click **Done** button to save changes.
 
 ## Configure Teams App
 
@@ -504,11 +534,9 @@ Follow the similar steps in the previous chapter to authorize the **microsoft-gr
 
 3. Click **Planner**.
 
-4. Sign in with the Huddle work account.
+4. Choose **Use an existing plan**, then select the plan which has the same name as the team.
 
    ![](Images/ms-teams-12.png)
-
-   Choose **Use an existing plan**, then select the plan which has the same name as the team.
 
 5. Click **Save**.
 
