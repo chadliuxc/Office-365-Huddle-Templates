@@ -264,7 +264,7 @@ For each team you created, please active the default planer and create 4 buckets
    ```PowerShell
    Connect-Graph
    ```
-3. Run the following script in the PowerShell console. This script will create the following 4 Applications in AAD. The names of these 5 Applications are defined at the top of [NewApps.ps1](./Files/NewApps.ps1).
+3. Run the following script in the PowerShell console. This script will create the following 4 Applications in AAD. The names of these 4 Applications are defined at the top of [NewApps.ps1](./Files/NewApps.ps1).
    * Huddle Bot
    * Huddle Bot Web App
    * Huddle Metric Web App
@@ -403,8 +403,6 @@ Please **Redeploy** with the same parameters and to the same resource group.
 
    * Click **Save**.
 
-3. 
-
 ### Authorize Planner API Connection
 
 1. Navigate to **planner** in the resource group you just created.
@@ -422,7 +420,7 @@ Please **Redeploy** with the same parameters and to the same resource group.
 
 4. Click **Authorize**.
 
-   Pick up or input the Huddle work account. The user account should be in every team.
+   Pick up or input the Huddle AAD account. The user account should be in every team.
 
    Sign in the account.
 
@@ -536,8 +534,6 @@ Follow the similar steps in the previous chapter to authorize the **microsoft-gr
    ![](Images/ms-teams-11.png)
 
 3. Click **Planner**.
-
-4. Sign in with the Huddle work account.
 
    ![](Images/ms-teams-12.png)
 
