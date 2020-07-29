@@ -95,6 +95,9 @@ namespace Huddle.BotWebApp.Dialogs
                 return await stepContext.EndDialogAsync(null, cancellationToken);
             }
 
+            if (stepContext.Context.Activity.Type == ActivityTypes.Invoke)
+                await stepContext.Context.SendActivityAsync("You have signed in successfully.");
+
             var handler = new JwtSecurityTokenHandler();
             var token = handler.ReadJwtToken(tokenResponse.Token);
             var tenantId = token.Claims.FirstOrDefault(i => i.Type == "tid").Value;

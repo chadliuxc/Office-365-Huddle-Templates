@@ -125,6 +125,9 @@ namespace Huddle.BotWebApp.Dialogs
                 return await stepContext.ReplaceDialogAsync(nameof(WaterfallDialog), createIdeaOptions, cancellationToken);
             }
 
+            if (stepContext.Context.Activity.Type == ActivityTypes.Invoke)
+                await stepContext.Context.SendActivityAsync("You have signed in successfully.");
+
             var userProfile = await UserProfileAccessor.GetAsync(stepContext.Context);
             var service = new MetricsService(tokenResponse.Token, Configuration["BaseSPSiteUrl"]);
             var metrics = (await service.GetActiveMetricsAsync(userProfile.SelectedTeam.Id)).ToList();
@@ -161,6 +164,9 @@ namespace Huddle.BotWebApp.Dialogs
                 await stepContext.Context.SendActivityAsync(MessageFactory.Text("Login was not successful please try again."), cancellationToken);
                 return await stepContext.ReplaceDialogAsync(nameof(WaterfallDialog), createIdeaOptions, cancellationToken);
             }
+
+            if (stepContext.Context.Activity.Type == ActivityTypes.Invoke)
+                await stepContext.Context.SendActivityAsync("You have signed in successfully.");
 
             var userProfile = await UserProfileAccessor.GetAsync(stepContext.Context);
             var service = new TeamsService(tokenResponse.Token);
@@ -234,6 +240,9 @@ namespace Huddle.BotWebApp.Dialogs
                 await stepContext.Context.SendActivityAsync(MessageFactory.Text("Login was not successful please try again."), cancellationToken);
                 return await stepContext.EndDialogAsync(null, cancellationToken);
             }
+
+            if (stepContext.Context.Activity.Type == ActivityTypes.Invoke)
+                await stepContext.Context.SendActivityAsync("You have signed in successfully.");
 
             var userProfile = await base.UserProfileAccessor.GetAsync(stepContext.Context);
             var team = userProfile.SelectedTeam;
