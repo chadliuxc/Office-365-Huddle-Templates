@@ -150,14 +150,6 @@ In this section, we will connect to Microsoft Teams in PowerShell with a Huddle 
    ```
    Connect-MicrosoftTeams
    ```
-   
-   > Notes:
-   >
-   > `Connect-MicrosoftTeams` cannot be executed under the Restricted execution policy of Powershell. Need to run following command to relax the execution environment
-   > ```powershell
-   > Set-ExecutionPolicy -ExecutionPolicy RemoteSigned 
-   > ```
-   >
 
 5. Execute the commands below which reads data from the Excel file and create teams:
 
