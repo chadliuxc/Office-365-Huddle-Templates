@@ -71,8 +71,7 @@ This document will guide you to deploy the solution to your environment.
 First, an Azure AAD is required to register the app registrations. In this document, the Azure AAD will be called "Huddle AAD", and an account in Huddle AAD will be called Huddle work account.
 
 * All app registrations should be created in the Huddle AAD. 
-* Bot/Luis/Microsoft App should be registered with a Huddle work account.
-
+* Bot/Luis/Microsoft App should be registered with a Huddle work account. This account should have permission to deploy resource and create resource group in Azure.
 
 * SharePoint lists should be created on SharePoint associating with Huddle AAD.
 
