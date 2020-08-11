@@ -267,7 +267,7 @@ For each team you created, please active the default planer and create 4 buckets
 2. Connect to Microsoft Azure with a Huddle AAD account.
 
    ```PowerShell
-   Connect-Graph
+   Connect-Graph -Scopes Directory.AccessAsUser.All
    ```
 3. Run the following script in the PowerShell console. This script will create the following 4 Applications in AAD. The names of these 4 Applications are defined at the top of [NewApps.ps1](./Files/NewApps.ps1).
    * Huddle Bot
